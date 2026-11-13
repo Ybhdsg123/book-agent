@@ -12,7 +12,7 @@ test('钉钉消息包含来源、书籍待核验提示和前三条候选', () =>
   assert.match(markdown, /书名（作者）/)
   assert.match(markdown, /金句贴图/)
   assert.match(markdown, /计划图片数：5/)
-  assert.match(markdown, /关联书籍：待深度研究匹配/)
+  assert.match(markdown, /关联书籍：待从书库匹配/)
   assert.match(markdown, /推荐理由/)
   assert.doesNotMatch(markdown, /候选四/)
 })

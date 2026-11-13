@@ -10,11 +10,11 @@ export function buildDingTalkMarkdown(candidates, { generatedAt = new Date().toI
   ]
   for (const [index, item] of candidates.slice(0, 3).entries()) {
     lines.push(
-      `## ${index + 1}. ${item.title}`,
+      `## ${index + 1}. ${item.topicTitle || item.title}`,
       `- 来源/作者：${item.author || '未知'}`,
-      `- 关联书籍：待深度研究匹配`,
-      `- 建议形式：待内容策划确定`,
-      `- 计划图片数：待内容策划确定`,
+      `- 关联书籍：${item.bookTitle ? `${item.bookTitle}（${item.bookAuthor || '作者待核验'}）` : '待从书库匹配'}`,
+      `- 内容形式：${formatLabel(item.contentFormat)}`,
+      `- 计划图片数：${item.plannedImageCount ?? '待策划'}`,
       `- 评分：${item.score ?? '待评估'}（覆盖率 ${item.scoreCoverage ?? 0}%）`,
       `- 推荐理由：${item.editorialRationale || item.summary || '公开来源发现，需进一步核验原文与传播表现。'}`,
       `- 来源链接：[查看原文](${item.url || item.sourceUrl || '#'})`,
@@ -55,4 +55,8 @@ export async function sendDingTalkMarkdown({
   const result = await response.json()
   if (result.errcode !== 0) throw new Error(`钉钉机器人返回错误：${result.errmsg || result.errcode}`)
   return { status: 'sent', messageId: result.messageId || null }
+}
+
+function formatLabel(value) {
+  return ({ quote_cards: '金句贴图', article: '图文文章', book_review: '书评', author_story: '作者故事' })[value] || '待内容策划确定'
 }

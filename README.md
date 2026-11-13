@@ -22,7 +22,7 @@ npm test
 npm run hotspots:collect
 ```
 
-报告写入 `data/reports/`。配置 `RSSHUB_BASE_URL` 后可启用 RSSHub 路由（默认包含微博热搜、B站热搜/综合热门、豆瓣图书榜；需自建或可信实例）；可用 `RSSHUB_ROUTES` JSON 覆盖路由。配置 `DEEPSEEK_API_KEY` 后会调用 DeepSeek 做内容维度分析；配置 `DINGTALK_BOT_WEBHOOK`（加签机器人同时配置 `DINGTALK_BOT_SECRET`）后会将前三条候选推送到钉钉群机器人。以上均通过 GitHub Actions Secrets 配置，不写入仓库。GitHub Actions 的每日任务按北京时间 09:00 运行，并将报告保存为 14 天有效的工作流 Artifact。默认搜索图书、阅读、心理成长、作家、书评等主题。可通过 `HOTSPOT_RSS_FEEDS` 增加自定义 RSS URL（多个 URL 用英文逗号分隔）。
+报告写入 `data/reports/`。配置 `RSSHUB_BASE_URL` 后可启用 RSSHub 路由（默认包含微博热搜、B站热搜/综合热门、豆瓣图书榜；需自建或可信实例）；可用 `RSSHUB_ROUTES` JSON 覆盖路由。将确认过的书籍信息维护在 `books/catalog.json`（参考 `books/catalog.example.json`）；DeepSeek 只能从该书库中匹配书名，不能凭空生成书籍。配置 `DEEPSEEK_API_KEY` 后会调用 DeepSeek 做内容维度分析；配置 `DINGTALK_BOT_WEBHOOK`（加签机器人同时配置 `DINGTALK_BOT_SECRET`）后会将前三条候选推送到钉钉群机器人。以上均通过 GitHub Actions Secrets 配置，不写入仓库。GitHub Actions 的每日任务按北京时间 09:00 运行，并将报告保存为 14 天有效的工作流 Artifact。默认搜索图书、阅读、心理成长、作家、书评等主题。可通过 `HOTSPOT_RSS_FEEDS` 增加自定义 RSS URL（多个 URL 用英文逗号分隔）。
 
 ## 证据边界
 

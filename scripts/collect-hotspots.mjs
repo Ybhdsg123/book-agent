@@ -5,11 +5,19 @@ import { rankTrends } from '../core/hotspots/scoring.mjs'
 import { deduplicateTrends } from '../core/hotspots/dedupe.mjs'
 import { evaluateTrendsWithDeepSeek } from '../core/research/deepseek.mjs'
 import { buildDingTalkMarkdown, sendDingTalkMarkdown } from '../core/integrations/dingtalk.mjs'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { loadEnvFile } from '../core/config/env.mjs'
 
 await loadEnvFile()
 
+let bookCatalog = []
+try {
+  const catalogPath = process.env.BOOK_CATALOG_PATH || 'books/catalog.json'
+  bookCatalog = JSON.parse(await readFile(catalogPath, 'utf8'))
+  if (!Array.isArray(bookCatalog)) throw new Error('书库文件必须是 JSON 数组')
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error
+}
 const customFeeds = (process.env.HOTSPOT_RSS_FEEDS || '').split(',').map((value) => value.trim()).filter(Boolean)
 const rssHubRoutes = process.env.RSSHUB_ROUTES ? JSON.parse(process.env.RSSHUB_ROUTES) : undefined
 const adapters = [
@@ -23,7 +31,7 @@ let research = { status: 'skipped_no_api_key', evaluatedCount: 0 }
 let enriched = discovered
 if (process.env.DEEPSEEK_API_KEY && discovered.length) {
   try {
-    const result = await evaluateTrendsWithDeepSeek(discovered.slice(0, 30))
+    const result = await evaluateTrendsWithDeepSeek(discovered.slice(0, 30), { bookCatalog })
     enriched = [...result.items, ...discovered.slice(30)]
     research = { status: 'success', evaluatedCount: result.evaluatedCount }
   } catch (error) {

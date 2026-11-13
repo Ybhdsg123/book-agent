@@ -8,7 +8,7 @@
 - `core/hotspots/rsshub.mjs`：可选 RSSHub 适配层，默认包含微博热搜、B站热搜/综合热门、豆瓣图书榜；标记为 third_party。需要设置自建或可信 RSSHub 实例地址。
 - `core/hotspots/dedupe.mjs`：按规范化 URL 和标题相似度聚类，保留多来源。
 - `core/hotspots/scoring.mjs`：输出总分、分项、缺失信号、覆盖率和证据置信度。
-- `core/research/deepseek.mjs`：可选调用 DeepSeek 评估共鸣、延展性和账号适配度，证据不足时允许返回 null。
+- `core/research/deepseek.mjs`：可选调用 DeepSeek 评估共鸣、延展性和账号适配度，并生成选题标题、内容形式与图片数建议；关联书籍只能从 `books/catalog.json` 精确匹配，未命中则留空。
 - `scripts/collect-hotspots.mjs`：运行采集、研究、评分、去重并生成 JSON/Markdown 报告。
 
 ## 评分维度

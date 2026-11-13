@@ -8,25 +8,43 @@ test('DeepSeek 评估器要求 API Key', async () => {
   await assert.rejects(evaluateTrendsWithDeepSeek([trend], { apiKey: '' }), /DEEPSEEK_API_KEY/)
 })
 
-test('DeepSeek 结构化结果回填三项编辑信号', async () => {
-  let request
+test('DeepSeek 结构化结果回填选题策划字段，书名只能从书库匹配', async () => {
+  const bookCatalog = [{ title: '被讨厌的勇气', author: '岸见一郎、古贺史健', edition: '示例版' }]
+  const result = await evaluateTrendsWithDeepSeek([trend], {
+    apiKey: 'test-key', bookCatalog,
+    fetchImpl: async () => ({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: JSON.stringify({
+        results: [{
+          id: 'web:test', resonance: 4.5, expansion: 4, accountFit: 5,
+          topicTitle: '为什么越想被所有人喜欢，越容易失去自己',
+          bookTitle: '被讨厌的勇气', contentFormat: 'quote_cards', plannedImageCount: 5,
+          reason: '与阅读成长主题相关。',
+        }],
+      }) } }] }),
+    }),
+  })
+  assert.equal(result.evaluatedCount, 1)
+  assert.equal(result.items[0].bookTitle, '被讨厌的勇气')
+  assert.equal(result.items[0].bookAuthor, '岸见一郎、古贺史健')
+  assert.equal(result.items[0].contentFormat, 'quote_cards')
+  assert.equal(result.items[0].plannedImageCount, 5)
+  assert.equal(result.items[0].topicTitle, '为什么越想被所有人喜欢，越容易失去自己')
+})
+
+test('不在书库中的模型书名不得进入选题结果', async () => {
   const result = await evaluateTrendsWithDeepSeek([trend], {
     apiKey: 'test-key',
-    fetchImpl: async (url, options) => {
-      request = { url, options }
-      return {
-        ok: true,
-        json: async () => ({ choices: [{ message: { content: JSON.stringify({
-          results: [{ id: 'web:test', resonance: 4.5, expansion: 4, accountFit: 5, reason: '与阅读成长主题相关。' }],
-        }) } }] }),
-      }
-    },
+    fetchImpl: async () => ({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: JSON.stringify({
+        results: [{ id: 'web:test', bookTitle: '模型随意编造的书名', plannedImageCount: 99, contentFormat: 'unknown' }],
+      }) } }] }),
+    }),
   })
-  assert.equal(request.url, 'https://api.deepseek.com/chat/completions')
-  assert.equal(request.options.headers.authorization, 'Bearer test-key')
-  assert.equal(result.evaluatedCount, 1)
-  assert.deepEqual(result.items[0].editorialSignals, { resonance: 4.5, expansion: 4, accountFit: 5, timeliness: null })
-  assert.equal(result.items[0].editorialRationale, '与阅读成长主题相关。')
+  assert.equal(result.items[0].bookTitle, '')
+  assert.equal(result.items[0].plannedImageCount, null)
+  assert.equal(result.items[0].contentFormat, '')
 })
 
 test('DeepSeek 错误状态和无效 JSON 会明确失败', async () => {

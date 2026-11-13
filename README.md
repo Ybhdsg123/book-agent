@@ -22,13 +22,13 @@ npm test
 npm run hotspots:collect
 ```
 
-报告写入 `data/reports/`。配置 `DEEPSEEK_API_KEY` 后会调用 DeepSeek 做内容维度分析；配置 `DINGTALK_BOT_WEBHOOK`（加签机器人同时配置 `DINGTALK_BOT_SECRET`）后会将前三条候选推送到钉钉群机器人。以上均通过 GitHub Actions Secrets 配置，不写入仓库。GitHub Actions 的每日任务按北京时间 09:00 运行，并将报告保存为 14 天有效的工作流 Artifact。默认搜索图书、阅读、心理成长、作家、书评等主题。可通过 `HOTSPOT_RSS_FEEDS` 增加自定义 RSS URL（多个 URL 用英文逗号分隔）。
+报告写入 `data/reports/`。配置 `RSSHUB_BASE_URL` 后可启用 RSSHub 路由（默认包含微博热搜、B站热搜/综合热门、豆瓣图书榜；需自建或可信实例）；可用 `RSSHUB_ROUTES` JSON 覆盖路由。配置 `DEEPSEEK_API_KEY` 后会调用 DeepSeek 做内容维度分析；配置 `DINGTALK_BOT_WEBHOOK`（加签机器人同时配置 `DINGTALK_BOT_SECRET`）后会将前三条候选推送到钉钉群机器人。以上均通过 GitHub Actions Secrets 配置，不写入仓库。GitHub Actions 的每日任务按北京时间 09:00 运行，并将报告保存为 14 天有效的工作流 Artifact。默认搜索图书、阅读、心理成长、作家、书评等主题。可通过 `HOTSPOT_RSS_FEEDS` 增加自定义 RSS URL（多个 URL 用英文逗号分隔）。
 
 ## 证据边界
 
 当前 RSS Adapter 从 Google News RSS 搜索公开网页资讯，条目统一标记为 `platform: web`、`evidenceLevel: search_result`。它不是微博、豆瓣、微信公众号、小红书、B站或 X 的原生热榜 API，也不代表这些平台的真实热度。原始网页仍需在深度研究阶段打开核验。RSS 不提供的阅读量、播放量、互动量和增长率保持为空，不编造。
 
-六个平台的官方/授权 Connector、钉钉消息推送与审核交互、微信公众号草稿箱写入和发布后数据回流尚未接通；需要对应平台 API 权限、服务凭据和部署环境后才能验收。每日 09:00 当前会生成 GitHub Actions 报告 Artifact；配置钉钉机器人 Secret 后可发送候选摘要。由于当前还未接入书籍匹配与内容形式策划，消息会明确标注关联书籍、内容形式和图片数待研究确定，不会编造。不要把 RSS 发现结果描述为平台原生热榜。
+六个平台的官方/授权 Connector、钉钉审核交互、微信公众号草稿箱写入和发布后数据回流尚未接通；RSSHub 仅是第三方公开 RSS 适配层，不能等同官方 API。需要对应平台 API 权限、服务凭据和部署环境后才能验收。每日 09:00 当前会生成 GitHub Actions 报告 Artifact；配置钉钉机器人 Secret 后可发送候选摘要。由于当前还未接入书籍匹配与内容形式策划，消息会明确标注关联书籍、内容形式和图片数待研究确定，不会编造。不要把 RSS 发现结果描述为平台原生热榜。
 
 ## 安全
 

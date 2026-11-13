@@ -1,5 +1,6 @@
 import { collectFromAdapters } from '../core/hotspots/collector.mjs'
 import { createDefaultRssAdapters, createRssAdapter } from '../core/hotspots/rss.mjs'
+import { createRssHubAdapters } from '../core/hotspots/rsshub.mjs'
 import { rankTrends } from '../core/hotspots/scoring.mjs'
 import { deduplicateTrends } from '../core/hotspots/dedupe.mjs'
 import { evaluateTrendsWithDeepSeek } from '../core/research/deepseek.mjs'
@@ -7,8 +8,10 @@ import { buildDingTalkMarkdown, sendDingTalkMarkdown } from '../core/integration
 import { mkdir, writeFile } from 'node:fs/promises'
 
 const customFeeds = (process.env.HOTSPOT_RSS_FEEDS || '').split(',').map((value) => value.trim()).filter(Boolean)
+const rssHubRoutes = process.env.RSSHUB_ROUTES ? JSON.parse(process.env.RSSHUB_ROUTES) : undefined
 const adapters = [
   ...createDefaultRssAdapters(),
+  ...createRssHubAdapters({ baseUrl: process.env.RSSHUB_BASE_URL, routes: rssHubRoutes }),
   ...customFeeds.map((url, index) => createRssAdapter({ id: `custom-rss-${index + 1}`, url })),
 ]
 const collected = await collectFromAdapters(adapters, { limit: 30 })

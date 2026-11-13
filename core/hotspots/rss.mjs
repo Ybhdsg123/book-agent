@@ -5,7 +5,7 @@ export function buildGoogleNewsRssUrl(query, { language = 'zh-CN', country = 'CN
   return `https://news.google.com/rss/search?${params.toString()}`
 }
 
-export function parseRss(xml, { sourceName = 'Google News RSS', feedUrl = '' } = {}) {
+export function parseRss(xml, { sourceName = 'Google News RSS', feedUrl = '', evidenceLevel = 'search_result' } = {}) {
   if (typeof xml !== 'string') throw new TypeError('RSS 内容必须是字符串')
   const entries = [...xml.matchAll(/<(item|entry)(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi)]
   return entries.map(([, type, body]) => {
@@ -20,16 +20,16 @@ export function parseRss(xml, { sourceName = 'Google News RSS', feedUrl = '' } =
     return {
       title: stripMarkup(decodeXml(title)), url: decodeXml(link.trim()), sourceUrl: feedUrl,
       author: stripMarkup(decodeXml(source)), summary: stripMarkup(decodeXml(description)).slice(0, 1200),
-      publishedAt, evidenceLevel: 'search_result', category: '公开网络资讯',
+      publishedAt, evidenceLevel, category: '公开网络资讯',
       metrics: {}, raw: { discoverySource: sourceName, feedUrl },
     }
   }).filter(Boolean)
 }
 
-export function createRssAdapter({ id = 'google-news-rss', query, url, fetchImpl = globalThis.fetch, timeoutMs = 12000, limit = 30 } = {}) {
+export function createRssAdapter({ id = 'google-news-rss', query, url, platform = 'web', evidenceLevel = 'search_result', fetchImpl = globalThis.fetch, timeoutMs = 12000, limit = 30 } = {}) {
   if (!query && !url) throw new Error('RSS Adapter 必须提供 query 或 url')
   return {
-    id, platform: 'web',
+    id, platform,
     async collect() {
       const feedUrl = url || buildGoogleNewsRssUrl(query)
       const parsed = new URL(feedUrl)
@@ -38,7 +38,7 @@ export function createRssAdapter({ id = 'google-news-rss', query, url, fetchImpl
       const response = await fetchImpl(feedUrl, { headers: { accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml' }, signal: AbortSignal.timeout(timeoutMs) })
       if (!response.ok) throw new Error(`RSS 请求失败：HTTP ${response.status}`)
       const xml = await response.text()
-      return parseRss(xml, { sourceName: id, feedUrl }).slice(0, limit)
+      return parseRss(xml, { sourceName: id, feedUrl, evidenceLevel }).slice(0, limit)
     },
   }
 }

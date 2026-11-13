@@ -26,3 +26,22 @@ test('RSS Adapter 使用 fetch 并拒绝 HTTP 错误', async () => {
   const failing = createRssAdapter({ query: '测试', fetchImpl: async () => ({ ok: false, status: 503 }) })
   await assert.rejects(failing.collect(), /HTTP 503/)
 })
+
+test('RSSHub Adapter 保留平台归属并阻止跨域路由', async () => {
+  const { createRssHubAdapters } = await import('../core/hotspots/rsshub.mjs')
+  const adapters = createRssHubAdapters({
+    baseUrl: 'https://rsshub.example',
+    routes: { weibo: ['/weibo/search/hot'], bilibili: ['/bilibili/hot-search'] },
+    fetchImpl: async () => ({ ok: true, text: async () => fixture }),
+  })
+  assert.equal(adapters.length, 2)
+  assert.equal(adapters[0].platform, 'weibo')
+  assert.equal(adapters[1].platform, 'bilibili')
+  const [item] = await adapters[0].collect()
+  assert.equal(item.evidenceLevel, 'third_party')
+  assert.equal(item.title, '读书与成长：一个故事')
+  assert.throws(() => createRssHubAdapters({
+    baseUrl: 'https://rsshub.example',
+    routes: { weibo: ['https://evil.example/feed.xml'] },
+  }), /不得跳转到其他域名/)
+})

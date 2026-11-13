@@ -4,7 +4,8 @@
 
 - `core/hotspots/normalize.mjs`：统一字段、平台名、时间、链接、互动指标和证据级别。
 - `core/hotspots/collector.mjs`：并行调用独立 Adapter，分别记录成功、部分成功、失败和无效条目。
-- `core/hotspots/rss.mjs`：Google News RSS 公开资讯发现；真实 HTTP 请求，来源统一归类为 web/search_result。
+- `core/hotspots/rss.mjs`：Google News RSS 公开资讯发现；真实 HTTP 请求，来源归类为 web/search_result。
+- `core/hotspots/rsshub.mjs`：可选 RSSHub 适配层，默认包含微博热搜、B站热搜/综合热门、豆瓣图书榜；标记为 third_party。需要设置自建或可信 RSSHub 实例地址。
 - `core/hotspots/dedupe.mjs`：按规范化 URL 和标题相似度聚类，保留多来源。
 - `core/hotspots/scoring.mjs`：输出总分、分项、缺失信号、覆盖率和证据置信度。
 - `core/research/deepseek.mjs`：可选调用 DeepSeek 评估共鸣、延展性和账号适配度，证据不足时允许返回 null。
@@ -36,4 +37,4 @@ const adapter = createRssAdapter({ id: 'my-feed', url: 'https://example.com/rss.
 
 ## 尚未接入
 
-豆瓣、微信公众号、微博、小红书、B站、X 的平台原生/授权 Connector；DeepSeek 内容研究；钉钉审核交互；微信公众号草稿箱写入；钉钉每日 09:00 推送与审核；发布数据回流。接入时优先官方 API、公开页面和用户授权，不实现验证码绕过、Cookie 池、账号轮换或规避访问控制。
+豆瓣、微信公众号、微博、小红书、B站、X 的平台原生/授权 Connector；DeepSeek 内容研究；钉钉审核交互；微信公众号草稿箱写入；小红书与微信公众号的通用热榜采集；发布数据回流。小红书 RSSHub 路由目前是用户笔记/收藏订阅而非通用热榜，且可能需要 Cookie/浏览器运行环境；微信公众号 RSSHub 路由依赖新榜账号配置；X/Twitter Trends 路由依赖开发者 API 配置。不要把这些配置要求包装成开箱即用。接入时优先官方 API、公开页面和用户授权，不实现验证码绕过、Cookie 池、账号轮换或规避访问控制。

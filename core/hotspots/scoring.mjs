@@ -1,5 +1,3 @@
-import { stableKey } from './normalize.mjs'
-
 const WEIGHTS = Object.freeze({ reach: 25, growth: 20, resonance: 20, expansion: 15, accountFit: 15, timeliness: 5 })
 const EVIDENCE_CONFIDENCE = Object.freeze({ official_api: 1, public_page: 0.9, third_party: 0.7, search_result: 0.55, manual: 0.6 })
 
@@ -20,13 +18,14 @@ export function scoreTrend(trend, { now = new Date() } = {}) {
   return {
     ...trend, score,
     scoreBand: score >= 85 ? 'priority' : score >= 75 ? 'candidate' : score >= 60 ? 'observe' : 'skip',
-    dimensions, missingDimensions: missing, evidenceConfidence,
-    scoreNote: missing.length ? `缺少${missing.length}项评分信号；总分按已提供维度折算，需补充证据` : '六项评分信号完整',
+    dimensions, missingDimensions: missing, scoreCoverage: Math.round((availableWeight / 100) * 100),
+    evidenceConfidence,
+    scoreNote: missing.length ? `缺少${missing.length}项评分信号；总分按已提供维度折算，覆盖率 ${Math.round(availableWeight)}%` : '六项评分信号完整',
   }
 }
 export function rankTrends(trends, options = {}) {
   return [...trends].map((trend) => scoreTrend(trend, options))
-    .sort((a, b) => b.score - a.score || b.evidenceConfidence - a.evidenceConfidence)
+    .sort((a, b) => b.score - a.score || b.scoreCoverage - a.scoreCoverage || b.evidenceConfidence - a.evidenceConfidence)
 }
 function reachSignal(metrics) {
   const rank = finite(metrics.rank), total = finite(metrics.rankTotal)
@@ -57,6 +56,10 @@ function calculateEvidenceConfidence(trend, missing) {
   const completeness = Math.max(0.35, 1 - missing.length * 0.08)
   return Math.round(100 * base * (hasSource ? 1 : 0.8) * (hasTimestamp ? 1 : 0.8) * completeness)
 }
-function finite(value) { const n = Number(value); return Number.isFinite(n) && value !== null && value !== '' ? n : null }
+function finite(value) {
+  if (value === null || value === undefined || value === '' || typeof value === 'boolean') return null
+  const n = Number(value)
+  return Number.isFinite(n) ? n : null
+}
 function clamp5(value) { return Math.max(0, Math.min(5, value)) }
 export const HOTSPOT_SCORE_WEIGHTS = WEIGHTS

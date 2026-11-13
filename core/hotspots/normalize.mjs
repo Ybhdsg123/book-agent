@@ -1,12 +1,17 @@
 const PLATFORMS = new Set(['douban', 'wechat', 'weibo', 'xiaohongshu', 'bilibili', 'x', 'web'])
 const EVIDENCE_LEVELS = new Set(['official_api', 'public_page', 'third_party', 'search_result', 'manual'])
-const numberOrNull = (value) => Number.isFinite(Number(value)) && value !== '' && value !== null ? Number(value) : null
+
+function numberOrNull(value) {
+  if (value === null || value === undefined || value === '' || typeof value === 'boolean') return null
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
+}
 
 export function normalizeTrend(item, { platform, collectedAt = new Date().toISOString(), adapter = 'unknown' } = {}) {
   if (!item || typeof item !== 'object' || Array.isArray(item)) throw new TypeError('热点条目必须是对象')
   const sourcePlatform = String(item.platform || platform || '').toLowerCase()
   if (!PLATFORMS.has(sourcePlatform)) throw new Error(`不支持的平台：${sourcePlatform || '(empty)'}`)
-  const title = String(item.title || '').replace(/\s+/g, ' ').trim()
+  const title = String(item.title || '').replace(/\\s+/g, ' ').trim()
   if (!title) throw new Error('热点标题不能为空')
   const evidenceLevel = EVIDENCE_LEVELS.has(item.evidenceLevel) ? item.evidenceLevel : 'third_party'
   const metrics = item.metrics && typeof item.metrics === 'object' ? item.metrics : {}
@@ -31,13 +36,13 @@ export function normalizeTrend(item, { platform, collectedAt = new Date().toISOS
 export function normalizeSignals(signals = {}) {
   const result = {}
   for (const key of ['resonance', 'expansion', 'accountFit', 'timeliness']) {
-    const value = Number(signals[key])
-    result[key] = Number.isFinite(value) ? Math.max(0, Math.min(5, value)) : null
+    const value = numberOrNull(signals?.[key])
+    result[key] = value === null ? null : Math.max(0, Math.min(5, value))
   }
   return result
 }
 export function stableKey(value = '') {
-  return String(value).toLowerCase().replace(/[\p{P}\p{S}\s_]+/gu, '')
+  return String(value).toLowerCase().replace(/[\\p{P}\\p{S}\\s_]+/gu, '')
 }
 function clean(value) { return typeof value === 'string' ? value.trim() : '' }
 function safeUrl(value) {

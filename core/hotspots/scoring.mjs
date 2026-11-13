@@ -1,5 +1,3 @@
-import { stableKey } from './normalize.mjs'
-
 const WEIGHTS = Object.freeze({ reach: 25, growth: 20, resonance: 20, expansion: 15, accountFit: 15, timeliness: 5 })
 const EVIDENCE_CONFIDENCE = Object.freeze({ official_api: 1, public_page: 0.9, third_party: 0.7, search_result: 0.55, manual: 0.6 })
 
@@ -20,8 +18,8 @@ export function scoreTrend(trend, { now = new Date() } = {}) {
   return {
     ...trend, score,
     scoreBand: score >= 85 ? 'priority' : score >= 75 ? 'candidate' : score >= 60 ? 'observe' : 'skip',
-    dimensions, missingDimensions: missing, evidenceConfidence,
-    scoreNote: missing.length ? `缺少${missing.length}项评分信号；总分按已提供维度折算，需补充证据` : '六项评分信号完整',
+    dimensions, missingDimensions: missing, scoreCoverage: Math.round(availableWeight), evidenceConfidence,
+    scoreNote: missing.length ? `缺少${missing.length}项评分信号；缺失项不补分，评分覆盖率 ${Math.round(availableWeight)}%` : '六项评分信号完整',
   }
 }
 export function rankTrends(trends, options = {}) {

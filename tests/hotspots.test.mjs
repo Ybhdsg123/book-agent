@@ -29,6 +29,8 @@ test('缺少指标时明确标注缺失项', () => {
   assert.ok(result.missingDimensions.includes('reach'))
   assert.ok(result.missingDimensions.includes('growth'))
   assert.ok(result.evidenceConfidence < 100)
+  assert.equal(result.scoreCoverage, 5)
+  assert.equal(result.score, 5)
 })
 test('跨平台近似标题合并并保留来源', () => {
   const items = [

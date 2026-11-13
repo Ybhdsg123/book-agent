@@ -1,6 +1,11 @@
 const PLATFORMS = new Set(['douban', 'wechat', 'weibo', 'xiaohongshu', 'bilibili', 'x', 'web'])
 const EVIDENCE_LEVELS = new Set(['official_api', 'public_page', 'third_party', 'search_result', 'manual'])
-const numberOrNull = (value) => Number.isFinite(Number(value)) && value !== '' && value !== null ? Number(value) : null
+
+function numberOrNull(value) {
+  if (value === null || value === undefined || value === '' || typeof value === 'boolean') return null
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
+}
 
 export function normalizeTrend(item, { platform, collectedAt = new Date().toISOString(), adapter = 'unknown' } = {}) {
   if (!item || typeof item !== 'object' || Array.isArray(item)) throw new TypeError('热点条目必须是对象')
@@ -31,8 +36,8 @@ export function normalizeTrend(item, { platform, collectedAt = new Date().toISOS
 export function normalizeSignals(signals = {}) {
   const result = {}
   for (const key of ['resonance', 'expansion', 'accountFit', 'timeliness']) {
-    const value = Number(signals[key])
-    result[key] = Number.isFinite(value) ? Math.max(0, Math.min(5, value)) : null
+    const value = numberOrNull(signals?.[key])
+    result[key] = value === null ? null : Math.max(0, Math.min(5, value))
   }
   return result
 }

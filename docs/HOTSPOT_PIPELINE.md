@@ -35,6 +35,10 @@ import { createRssAdapter } from './core/hotspots/rss.mjs'
 const adapter = createRssAdapter({ id: 'my-feed', url: 'https://example.com/rss.xml' })
 ```
 
+## 代码贴图生成
+
+`core/posters/render.mjs` 与 `core/posters/scenes.mjs` 提供 3:4 SVG 贴图渲染和 8 种简约场景组件。通过 `npm run poster:render -- input.json data/posters` 批量生成 SVG；同一批次默认共享 warm-paper 主题，场景按文案语义自动选择。
+
 ## 尚未接入
 
 豆瓣、微信公众号、微博、小红书、B站、X 的平台原生/授权 Connector；DeepSeek 内容研究；钉钉审核交互；微信公众号草稿箱写入；小红书与微信公众号的通用热榜采集；发布数据回流。小红书 RSSHub 路由目前是用户笔记/收藏订阅而非通用热榜，且可能需要 Cookie/浏览器运行环境；微信公众号 RSSHub 路由依赖新榜账号配置；X/Twitter Trends 路由依赖开发者 API 配置。不要把这些配置要求包装成开箱即用。接入时优先官方 API、公开页面和用户授权，不实现验证码绕过、Cookie 池、账号轮换或规避访问控制。

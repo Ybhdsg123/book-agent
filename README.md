@@ -6,6 +6,7 @@
 
 - 统一热点数据结构、独立 Adapter 采集、跨来源去重和评分。
 - Google News RSS 公开信息发现 Adapter（真实网络请求，非模拟数据）。
+- SVG 代码贴图生成：暖纸感编辑式版面，包含 8 种轻量场景组件；不调用 AI 生图模型或外部图库。
 - 可选 DeepSeek 结构化研究：为候选补充情绪共鸣、内容延展性、账号适配度，并保留理由；缺少 API Key 时自动跳过。
 - 每轮生成 JSON + Markdown 报告，保留来源链接、采集时间、证据级别、评分覆盖率。
 - Node.js 内置测试和 GitHub Actions CI。
@@ -20,6 +21,7 @@
 ```bash
 npm test
 npm run hotspots:collect
+npm run poster:render -- ./input.json ./data/posters
 ```
 
 报告写入 `data/reports/`。配置 `RSSHUB_BASE_URL` 后可启用 RSSHub 路由（默认包含微博热搜、B站热搜/综合热门、豆瓣图书榜；需自建或可信实例）；可用 `RSSHUB_ROUTES` JSON 覆盖路由。将确认过的书籍信息维护在 `books/catalog.json`（参考 `books/catalog.example.json`）；DeepSeek 只能从该书库中匹配书名，不能凭空生成书籍。配置 `DEEPSEEK_API_KEY` 后会调用 DeepSeek 做内容维度分析；配置 `DINGTALK_BOT_WEBHOOK`（加签机器人同时配置 `DINGTALK_BOT_SECRET`）后会将前三条候选推送到钉钉群机器人。以上均通过 GitHub Actions Secrets 配置，不写入仓库。GitHub Actions 的每日任务按北京时间 09:00 运行，并将报告保存为 14 天有效的工作流 Artifact。默认搜索图书、阅读、心理成长、作家、书评等主题。可通过 `HOTSPOT_RSS_FEEDS` 增加自定义 RSS URL（多个 URL 用英文逗号分隔）。

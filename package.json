@@ -4,9 +4,12 @@
   "private": true,
   "type": "module",
   "description": "面向图书公众号的热点发现与内容研究 Agent",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "node --test",
-    "hotspots:collect": "node scripts/collect-hotspots.mjs"
+    "hotspots:collect": "node scripts/collect-hotspots.mjs",
+    "poster:render": "node scripts/render-poster.mjs"
   }
 }

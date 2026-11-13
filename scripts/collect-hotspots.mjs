@@ -100,7 +100,7 @@ const report = {
     failedCount: collected?.failedCount || 0,
     adapters: (collected?.results || []).map(({ adapter, platform, status, count, error }) => ({ adapter, platform, status, count, error })),
   },
-  candidates: ranked,
+  candidates: selectQualifiedTrends(ranked),
   recommendations,
 }
 

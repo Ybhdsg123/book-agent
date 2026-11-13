@@ -33,4 +33,6 @@ test('自动场景选择、长文本换行和批量统一风格', () => {
   assert.equal(batch[0].scene, 'open-book')
   assert.equal(batch[1].scene, 'sunrise')
   assert.ok(batch.every((item) => item.svg.includes('#F6F0E6')))
+  const sage = renderQuotePoster({ quote: '一段话', theme: 'sage-paper' })
+  assert.match(sage, /#EEF0E7/)
 })

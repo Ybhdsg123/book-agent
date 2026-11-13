@@ -2,6 +2,9 @@ import { renderScene } from './scenes.mjs'
 
 export const POSTER_THEMES = Object.freeze({
   'warm-paper': { background: '#F6F0E6', paper: '#FBF8F1', ink: '#38342E', muted: '#82786C', accent: '#A86F50', border: '#D9CEBD' },
+  'sage-paper': { background: '#EEF0E7', paper: '#F8F9F3', ink: '#343A33', muted: '#727D6D', accent: '#788A70', border: '#CBD2C3' },
+  'clay-paper': { background: '#F2E7DE', paper: '#FBF5EF', ink: '#40342F', muted: '#89756B', accent: '#B4775E', border: '#DCC8B9' },
+  'blue-paper': { background: '#EAF0F0', paper: '#F7FAF8', ink: '#303A3D', muted: '#6D7C7D', accent: '#6D8C91', border: '#C8D5D4' },
 })
 
 export function chooseScene(text = '') {

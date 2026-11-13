@@ -29,6 +29,7 @@ if (process.env.DEEPSEEK_API_KEY && discovered.length) {
 }
 const ranked = rankTrends(enriched)
 const unique = ranked
+const recommendations = unique.filter((item) => item.scoreCoverage >= 50 && item.evidenceConfidence >= 40 && item.scoreBand !== 'insufficient_data').slice(0, 3)
 const report = {
   generatedAt: collected.collectedAt,
   disclaimer: '本报告来自公开 RSS/搜索发现，不代表各平台原生热榜；搜索结果不等于原文已核验。',
@@ -40,16 +41,17 @@ const report = {
     adapters: collected.results.map(({ adapter, platform, status, count, error }) => ({ adapter, platform, status, count, error })),
   },
   candidates: unique.slice(0, 30),
+  recommendations,
 }
 await mkdir('data/reports', { recursive: true })
 const stamp = collected.collectedAt.replace(/[:.]/g, '-')
 const jsonPath = `data/reports/hotspots-${stamp}.json`
 const markdownPath = `data/reports/hotspots-${stamp}.md`
-let notification = { status: 'skipped_no_webhook' }
-if (process.env.DINGTALK_BOT_WEBHOOK && unique.length) {
+let notification = { status: process.env.DINGTALK_BOT_WEBHOOK ? 'skipped_insufficient_evidence' : 'skipped_no_webhook' }
+if (process.env.DINGTALK_BOT_WEBHOOK && recommendations.length) {
   try {
     notification = await sendDingTalkMarkdown({
-      markdown: buildDingTalkMarkdown(unique, { generatedAt: collected.collectedAt }),
+      markdown: buildDingTalkMarkdown(recommendations, { generatedAt: collected.collectedAt }),
     })
   } catch (error) {
     notification = { status: 'failed', error: String(error?.message || error).slice(0, 300) }
@@ -67,5 +69,5 @@ const lines = [
   ...report.candidates.map((item, index) => `## ${index + 1}. ${item.title}（${item.score} 分）\n- 来源：${item.author || item.platform}\n- 发布时间：${item.publishedAt || '未知'}\n- 证据：${item.evidenceLevel}；置信度 ${item.evidenceConfidence}；评分覆盖率 ${item.scoreCoverage}%\n- 链接：${item.url || '无'}\n- 摘要：${item.summary || '无'}\n`),
 ]
 await writeFile(markdownPath, lines.join('\n') + '\n')
-console.log(JSON.stringify({ ...report.collection, jsonPath, markdownPath, candidates: report.candidates.length }, null, 2))
+console.log(JSON.stringify({ ...report.collection, jsonPath, markdownPath, candidates: report.candidates.length, recommendations: report.recommendations.length, notification: report.notification }, null, 2))
 if (!collected.total) process.exitCode = 1

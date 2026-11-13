@@ -13,11 +13,11 @@ export function scoreTrend(trend, { now = new Date() } = {}) {
   const missing = Object.entries(dimensions).filter(([, value]) => value === null).map(([key]) => key)
   const weighted = Object.entries(WEIGHTS).reduce((sum, [key, weight]) => sum + ((dimensions[key] ?? 0) / 5) * weight, 0)
   const availableWeight = Object.entries(WEIGHTS).reduce((sum, [key, weight]) => sum + (dimensions[key] === null ? 0 : weight), 0)
-  const score = Math.round(weighted)
+  const score = availableWeight ? Math.round((weighted / availableWeight) * 100) : 0
   const evidenceConfidence = calculateEvidenceConfidence(trend, missing)
   return {
     ...trend, score,
-    scoreBand: score >= 85 ? 'priority' : score >= 75 ? 'candidate' : score >= 60 ? 'observe' : 'skip',
+    scoreBand: availableWeight < 50 ? 'insufficient_data' : score >= 85 ? 'priority' : score >= 75 ? 'candidate' : score >= 60 ? 'observe' : 'skip',
     dimensions, missingDimensions: missing, scoreCoverage: Math.round(availableWeight), evidenceConfidence,
     scoreNote: missing.length ? `缺少${missing.length}项评分信号；缺失项不补分，评分覆盖率 ${Math.round(availableWeight)}%` : '六项评分信号完整',
   }

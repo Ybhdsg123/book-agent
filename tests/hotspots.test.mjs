@@ -30,7 +30,8 @@ test('缺少指标时明确标注缺失项', () => {
   assert.ok(result.missingDimensions.includes('growth'))
   assert.ok(result.evidenceConfidence < 100)
   assert.equal(result.scoreCoverage, 5)
-  assert.equal(result.score, 5)
+  assert.equal(result.score, 100)
+  assert.equal(result.scoreBand, 'insufficient_data')
 })
 test('跨平台近似标题合并并保留来源', () => {
   const items = [

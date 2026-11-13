@@ -2,6 +2,7 @@ import { collectFromAdapters } from '../core/hotspots/collector.mjs'
 import { createDefaultRssAdapters, createRssAdapter } from '../core/hotspots/rss.mjs'
 import { rankTrends } from '../core/hotspots/scoring.mjs'
 import { deduplicateTrends } from '../core/hotspots/dedupe.mjs'
+import { evaluateTrendsWithDeepSeek } from '../core/research/deepseek.mjs'
 import { mkdir, writeFile } from 'node:fs/promises'
 
 const customFeeds = (process.env.HOTSPOT_RSS_FEEDS || '').split(',').map((value) => value.trim()).filter(Boolean)
@@ -10,11 +11,24 @@ const adapters = [
   ...customFeeds.map((url, index) => createRssAdapter({ id: `custom-rss-${index + 1}`, url })),
 ]
 const collected = await collectFromAdapters(adapters, { limit: 30 })
-const ranked = rankTrends(collected.items)
-const unique = deduplicateTrends(ranked)
+const discovered = deduplicateTrends(collected.items)
+let research = { status: 'skipped_no_api_key', evaluatedCount: 0 }
+let enriched = discovered
+if (process.env.DEEPSEEK_API_KEY && discovered.length) {
+  try {
+    const result = await evaluateTrendsWithDeepSeek(discovered.slice(0, 30))
+    enriched = [...result.items, ...discovered.slice(30)]
+    research = { status: 'success', evaluatedCount: result.evaluatedCount }
+  } catch (error) {
+    research = { status: 'failed', evaluatedCount: 0, error: String(error?.message || error).slice(0, 300) }
+  }
+}
+const ranked = rankTrends(enriched)
+const unique = ranked
 const report = {
   generatedAt: collected.collectedAt,
   disclaimer: '本报告来自公开 RSS/搜索发现，不代表各平台原生热榜；搜索结果不等于原文已核验。',
+  aiResearch: research,
   collection: {
     total: collected.total, successCount: collected.successCount,
     partialCount: collected.partialCount, failedCount: collected.failedCount,

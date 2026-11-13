@@ -15,7 +15,7 @@ export function scoreTrend(trend, { now = new Date() } = {}) {
   const missing = Object.entries(dimensions).filter(([, value]) => value === null).map(([key]) => key)
   const weighted = Object.entries(WEIGHTS).reduce((sum, [key, weight]) => sum + ((dimensions[key] ?? 0) / 5) * weight, 0)
   const availableWeight = Object.entries(WEIGHTS).reduce((sum, [key, weight]) => sum + (dimensions[key] === null ? 0 : weight), 0)
-  const score = availableWeight ? Math.round((weighted / availableWeight) * 100) : 0
+  const score = Math.round(weighted)
   const evidenceConfidence = calculateEvidenceConfidence(trend, missing)
   return {
     ...trend, score,

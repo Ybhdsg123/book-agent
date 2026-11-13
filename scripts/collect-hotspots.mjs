@@ -119,7 +119,7 @@ if (process.env.DINGTALK_BOT_WEBHOOK && recommendations.length) {
   }
 }
 report.notification = notification
-await writeFile(jsonPath, JSON.stringify(report, null, 2) + '\\n')
+await writeFile(jsonPath, JSON.stringify(report, null, 2) + '\n')
 
 const lines = [
   '# 近期热点发现报告', '',
@@ -134,9 +134,9 @@ const lines = [
   '',
   report.message,
   '',
-  ...recommendations.map((item, index) => `## ${index + 1}. ${item.title}（${item.score} 分）\\n- 来源：${item.author || item.platform}\\n- 发布时间：${item.publishedAt || '未知'}\\n- 证据：${item.evidenceLevel}；置信度 ${item.evidenceConfidence}；评分覆盖率 ${item.scoreCoverage}%\\n- 链接：${item.url || '无'}\\n- 摘要：${item.summary || '无'}\\n`),
+  ...recommendations.map((item, index) => `## ${index + 1}. ${item.title}（${item.score} 分）\n- 来源：${item.author || item.platform}\n- 发布时间：${item.publishedAt || '未知'}\n- 证据：${item.evidenceLevel}；置信度 ${item.evidenceConfidence}；评分覆盖率 ${item.scoreCoverage}%\n- 链接：${item.url || '无'}\n- 摘要：${item.summary || '无'}\n`),
 ]
-await writeFile(markdownPath, lines.join('\\n') + '\\n')
+await writeFile(markdownPath, lines.join('\n') + '\n')
 console.log(JSON.stringify({
   ...report.collection, selectedWindow: report.selectedWindow, status: report.status,
   windowAttempts, recommendations: recommendations.length, jsonPath, markdownPath, notification,

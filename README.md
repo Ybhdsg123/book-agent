@@ -6,10 +6,22 @@
 
 - 统一热点数据结构、独立 Adapter 采集、跨来源去重和评分。
 - Google News RSS 公开信息发现 Adapter（真实网络请求，非模拟数据）。
-- SVG 代码贴图生成：暖纸感、鼠尾草、陶土、雾蓝 4 种克制配色主题，包含 8 种轻量场景组件；不调用 AI 生图模型或外部图库。
+- SVG 代码贴图生成：暖纸感、鼠尾草、陶土、雾蓝 4 种克制配色主题，包含轻量语义场景组件。
+- 图片生产采用 **AI 生图优先、代码生成兜底** 的可插拔设计；当前已有 SVG 代码引擎和统一 Visual Brief/兜底编排，真实 AI 图像 Provider 尚未接入，因此当前默认使用代码引擎。
 - 可选 DeepSeek 结构化研究：为候选补充情绪共鸣、内容延展性、账号适配度，并保留理由；缺少 API Key 时自动跳过。
 - 每轮生成 JSON + Markdown 报告，保留来源链接、采集时间、证据级别、评分覆盖率。
 - Node.js 内置测试和 GitHub Actions CI。
+
+## 图片生产
+
+图片生产先理解内容、判断图像类型、建立系列视觉规范，再为每张图片生成 Visual Brief。AI Provider 可用时优先调用；未配置、Key 缺失、超时、限流或服务异常时自动回退 SVG 代码渲染。中文长文案由统一排版层负责，避免生图模型直接写中文产生错字。
+
+- Skill 规范：`skills/image-production/SKILL.md`
+- 工作流与验收：`docs/IMAGE_PRODUCTION.md`
+- Visual Brief 与引擎兜底：`core/posters/production.mjs`
+- SVG 渲染器：`core/posters/render.mjs`
+
+默认视觉倾向温暖纸张、克制编辑式插画、轻手绘质感和留白；同一选题保持风格家族一致，但场景根据每句内容变化。知识解释图可以使用材质化 3D/结构图，不把所有图书内容强行做成 3D 图解。
 
 ## 环境要求
 

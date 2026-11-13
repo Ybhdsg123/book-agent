@@ -6,6 +6,9 @@ import { deduplicateTrends } from '../core/hotspots/dedupe.mjs'
 import { evaluateTrendsWithDeepSeek } from '../core/research/deepseek.mjs'
 import { buildDingTalkMarkdown, sendDingTalkMarkdown } from '../core/integrations/dingtalk.mjs'
 import { mkdir, writeFile } from 'node:fs/promises'
+import { loadEnvFile } from '../core/config/env.mjs'
+
+await loadEnvFile()
 
 const customFeeds = (process.env.HOTSPOT_RSS_FEEDS || '').split(',').map((value) => value.trim()).filter(Boolean)
 const rssHubRoutes = process.env.RSSHUB_ROUTES ? JSON.parse(process.env.RSSHUB_ROUTES) : undefined

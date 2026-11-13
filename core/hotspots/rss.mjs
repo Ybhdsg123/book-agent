@@ -1,5 +1,3 @@
-import { normalizeTrend } from './normalize.mjs'
-
 const DEFAULT_QUERIES = ['图书 阅读 心理成长', '作家 书评 读书', '女性成长 人际关系 自我提升']
 
 export function buildGoogleNewsRssUrl(query, { language = 'zh-CN', country = 'CN', edition = 'CN:zh-Hans' } = {}) {
@@ -9,7 +7,7 @@ export function buildGoogleNewsRssUrl(query, { language = 'zh-CN', country = 'CN
 
 export function parseRss(xml, { sourceName = 'Google News RSS', feedUrl = '' } = {}) {
   if (typeof xml !== 'string') throw new TypeError('RSS 内容必须是字符串')
-  const entries = [...xml.matchAll(/<(item|entry)(?:\\s[^>]*)?>([\\s\\S]*?)<\\/\\1>/gi)]
+  const entries = [...xml.matchAll(/<(item|entry)(?:\s[^>]*)?>([\s\S]*?)<\/\1>/gi)]
   return entries.map(([, type, body]) => {
     const title = readTag(body, 'title')
     const link = type.toLowerCase() === 'entry'
@@ -51,10 +49,10 @@ export function createDefaultRssAdapters({ queries = DEFAULT_QUERIES, fetchImpl,
 
 function readTag(xml, name) {
   const match = xml.match(new RegExp(`<(?:[\\w.-]+:)?${name}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/(?:[\\w.-]+:)?${name}\\s*>`, 'i'))
-  return match?.[1]?.replace(/^<!\\[CDATA\\[|\\]\\]>$/g, '').trim() || ''
+  return match?.[1]?.replace(/^<!\[CDATA\[|\]\]>$/g, '').trim() || ''
 }
 function decodeXml(value) {
-  return value.replace(/&(#x[\\da-f]+|#\\d+|amp|lt|gt|quot|apos);/gi, (entity, code) => {
+  return value.replace(/&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos);/gi, (entity, code) => {
     const key = code.toLowerCase()
     if (key === 'amp') return '&'
     if (key === 'lt') return '<'
@@ -65,4 +63,4 @@ function decodeXml(value) {
     return Number.isFinite(point) && point >= 0 && point <= 0x10ffff ? String.fromCodePoint(point) : entity
   })
 }
-function stripMarkup(value) { return value.replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim() }
+function stripMarkup(value) { return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() }

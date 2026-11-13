@@ -11,7 +11,7 @@ export function normalizeTrend(item, { platform, collectedAt = new Date().toISOS
   if (!item || typeof item !== 'object' || Array.isArray(item)) throw new TypeError('热点条目必须是对象')
   const sourcePlatform = String(item.platform || platform || '').toLowerCase()
   if (!PLATFORMS.has(sourcePlatform)) throw new Error(`不支持的平台：${sourcePlatform || '(empty)'}`)
-  const title = String(item.title || '').replace(/\\s+/g, ' ').trim()
+  const title = String(item.title || '').replace(/\s+/g, ' ').trim()
   if (!title) throw new Error('热点标题不能为空')
   const evidenceLevel = EVIDENCE_LEVELS.has(item.evidenceLevel) ? item.evidenceLevel : 'third_party'
   const metrics = item.metrics && typeof item.metrics === 'object' ? item.metrics : {}
@@ -42,7 +42,7 @@ export function normalizeSignals(signals = {}) {
   return result
 }
 export function stableKey(value = '') {
-  return String(value).toLowerCase().replace(/[\\p{P}\\p{S}\\s_]+/gu, '')
+  return String(value).toLowerCase().replace(/[\p{P}\p{S}\s_]+/gu, '')
 }
 function clean(value) { return typeof value === 'string' ? value.trim() : '' }
 function safeUrl(value) {

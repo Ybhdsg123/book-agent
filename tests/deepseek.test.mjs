@@ -25,7 +25,7 @@ test('DeepSeek 结构化结果回填三项编辑信号', async () => {
   assert.equal(request.url, 'https://api.deepseek.com/chat/completions')
   assert.equal(request.options.headers.authorization, 'Bearer test-key')
   assert.equal(result.evaluatedCount, 1)
-  assert.deepEqual(result.items[0].editorialSignals, { resonance: 4.5, expansion: 4, accountFit: 5 })
+  assert.deepEqual(result.items[0].editorialSignals, { resonance: 4.5, expansion: 4, accountFit: 5, timeliness: null })
   assert.equal(result.items[0].editorialRationale, '与阅读成长主题相关。')
 })
 

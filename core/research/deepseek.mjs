@@ -19,7 +19,7 @@ export async function evaluateTrendsWithDeepSeek(trends, {
     author: trend.author || '', category: trend.category || '',
     publishedAt: trend.publishedAt || '',
   }))
-  const availableBooks = bookCatalog.map(({ title, author, edition, isbn }) => ({ title, author: author || '', edition: edition || '', isbn: isbn || '' }))
+  const availableBooks = bookCatalog.filter((book) => book && typeof book.title === 'string' && book.title.trim()).map(({ title, author, edition, isbn }) => ({ title, author: author || '', edition: edition || '', isbn: isbn || '' }))
   const response = await fetchImpl(ENDPOINT, {
     method: 'POST',
     headers: { authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
@@ -57,7 +57,7 @@ export async function evaluateTrendsWithDeepSeek(trends, {
       resonance: result.resonance, expansion: result.expansion, accountFit: result.accountFit,
     })
     if (Object.values(signals).some((value) => value !== null)) evaluatedCount += 1
-    const matchedBook = bookCatalog.find((book) => book.title === result.bookTitle)
+    const matchedBook = bookCatalog.find((book) => book && book.title === result.bookTitle)
     const imageCount = Number(result.plannedImageCount)
     return {
       ...trend,

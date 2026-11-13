@@ -5,10 +5,13 @@ import { buildDingTalkMarkdown, sendDingTalkMarkdown } from '../core/integration
 
 test('钉钉消息包含来源、书籍待核验提示和前三条候选', () => {
   const markdown = buildDingTalkMarkdown([
-    { title: '候选一', author: '媒体A', score: 88, scoreCoverage: 100, url: 'https://example.com/1', summary: '推荐理由' },
+    { title: '候选一', topicTitle: '策划选题一', author: '媒体A', bookTitle: '书名', bookAuthor: '作者', contentFormat: 'quote_cards', plannedImageCount: 5, score: 88, scoreCoverage: 100, url: 'https://example.com/1', summary: '推荐理由' },
     { title: '候选二' }, { title: '候选三' }, { title: '候选四' },
   ])
-  assert.match(markdown, /候选一/)
+  assert.match(markdown, /策划选题一/)
+  assert.match(markdown, /书名（作者）/)
+  assert.match(markdown, /金句贴图/)
+  assert.match(markdown, /计划图片数：5/)
   assert.match(markdown, /关联书籍：待深度研究匹配/)
   assert.match(markdown, /推荐理由/)
   assert.doesNotMatch(markdown, /候选四/)

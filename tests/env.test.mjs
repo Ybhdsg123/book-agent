@@ -10,7 +10,7 @@ test('读取 .env、忽略注释并保留已有环境变量', async () => {
   const path = join(dir, '.env')
   const target = { EXISTING: 'system-value' }
   try {
-    await writeFile(path, '# comment\nA=hello\nB="two words"\nC=three # inline\nEXISTING=file-value\nexport D=quoted\\nline\n')
+    await writeFile(path, '# comment\nA=hello\nB="two words"\nC=three # inline\nEXISTING=file-value\nexport D="quoted\\nline"\n')
     const result = await loadEnvFile({ path, target })
     assert.deepEqual(result, { loaded: true, count: 4 })
     assert.equal(target.A, 'hello')
